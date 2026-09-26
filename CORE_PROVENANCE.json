@@ -1,0 +1,12 @@
+[
+  [
+    "xray",
+    "https://github.com/XTLS/Xray-core/releases/download/v26.2.6/Xray-macos-arm64-v8a.zip",
+    "adec4685084a7481c8acad93bb2024abe6db46535aec3a7bd6903d462961861d"
+  ],
+  [
+    "sing-box",
+    "https://github.com/SagerNet/sing-box/releases/download/v1.11.15/sing-box-1.11.15-darwin-arm64.tar.gz",
+    "079a6b2acac2dd418c70757c46e290f2fad12f7b60c878af6038aebb560ee988"
+  ]
+]

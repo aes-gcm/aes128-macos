@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES128 VPN</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="minimize-btn" class="window-button">-</div>
+        <div id="close-btn" class="window-button">×</div>
+
+        <div class="app-layout loading">
+            <div class="control-panel">
+
+                <div id="login-panel" class="panel-view">
+                     <div class="grid">
+                        <div class="info">
+                            <h2>[SECURE TERMINAL]</h2>
+                            <p>Privacy is not the desire to conceal secrets. It is the right to <strong>self-determination</strong>.</p>
+                        </div>
+                        <div class="form-container">
+                            <form id="login-form">
+                                <p id="login-error-box" class="error-message" role="alert"></p>
+                                <div class="form-group">
+                                    <label for="login-username">[IDENTIFIER]</label>
+                                    <input type="text" id="login-username" name="username" required autocomplete="username" spellcheck="false" autocapitalize="none">
+                                </div>
+                                <div class="form-group">
+                                    <label for="login-password">[PASSWORD]</label>
+                                    <div class="password-field">
+                                        <input type="password" id="login-password" name="password" required autocomplete="current-password">
+                                        <button type="button" id="toggle-password" aria-label="Show password" aria-pressed="false">SHOW</button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="form-button">Login</button>
+                            </form>
+                            <div class="form-link">
+                                <span>No credentials? <a href="#" id="go-to-register">Create Account //</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sessions-panel" class="panel-view">
+                    <div class="sessions-container">
+                        <header class="panel-header">
+                            <h2>[DEVICE_LIMIT_REACHED]</h2>
+                        </header>
+                        <p class="sessions-error-info" role="status">Please terminate an existing session to proceed.</p>
+                        <div id="sessions-list" class="sessions-list">
+                        </div>
+                        <div class="sessions-actions">
+                            <button id="retry-login-btn" class="form-button" disabled>Login</button>
+                            <button id="cancel-sessions-btn" class="form-button secondary">Back</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="main-control-panel" class="panel-view">
+                    <header class="app-header">
+                        <img src="/src/assets/images/down.png" id="back-to-app-btn" class="back-button" alt="Close menu view">
+                        <nav class="app-nav">
+                            <img src="/src/assets/images/settings.png" alt="Settings" class="nav-icon" id="settings-btn">
+                        </nav>
+                    </header>
+                    <div class="content-wrapper">
+                        <div id="main-app-content" class="content-view active">
+                            <div class="main-control-block">
+                                <h1 id="connection-status-text" role="status" aria-live="polite">disconnected</h1>
+                                <div class="clickable-row" id="server-select-row">
+                                    <span id="selected-server-name">Fastest server</span>
+                                    <span>&gt;</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="connect-toggle" aria-label="Connect VPN">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <footer class="user-details-footer">
+                                <div class="user-info-item">
+                                    <span class="label">[IDENTIFIER]</span>
+                                    <span class="value" id="main-username">-</span>
+                                </div>
+                                <div class="user-info-item">
+                                    <span class="label">[DEVICE NAME]</span>
+                                    <span class="value" id="main-device-name">-</span>
+                                </div>
+                            </footer>
+                        </div>
+                        <div id="settings-content" class="content-view settings-layout">
+                           <div class="settings-list">
+                                <div class="setting-item">
+                                    <label for="protocol-select">Protocol</label>
+                                    <div class="custom-select-wrapper">
+                                        <select id="protocol-select" class="settings-select">
+                                            <option value="vless-xhttp" selected>XHTTP</option>
+                                            <option value="vless-xtls">XTLS</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="setting-item" id="go-to-split-tunnel">
+                                    <span>Split Tunneling</span>
+                                    <span>&gt;</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Tor exit</span>
+                                    <label class="toggle-switch small"><input type="checkbox" id="tor-exit-toggle" aria-label="Tor exit"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Auto-start</span>
+                                    <label class="toggle-switch small"><input type="checkbox" id="autostart-toggle" aria-label="Auto-start"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Auto-connect</span>
+                                    <label class="toggle-switch small"><input type="checkbox" id="autoconnect-toggle" aria-label="Auto-connect"><span class="slider"></span></label>
+                                </div>
+                                <div class="setting-item">
+                                    <span>Mini version</span>
+                                    <label class="toggle-switch small"><input type="checkbox" id="mini-mode-toggle" aria-label="Mini version"><span class="slider"></span></label>
+                                </div>
+                           </div>
+                           <div class="settings-bottom">
+                                <button id="logout-btn" class="form-button danger">Log out</button>
+                                <div class="settings-version-row">
+                                    <span id="version-click-target" class="settings-version">v<span id="footer-current-version-span"></span></span>
+                                    <span id="current-version-span" style="display:none"></span>
+                                    <div id="update-info-block" class="settings-update">
+                                        <span class="update-dot-inline" id="update-notify-dot"></span>
+                                        <span>v<span id="latest-version-span"></span> available — <a href="#" id="download-update-link">download</a></span>
+                                    </div>
+                                </div>
+                           </div>
+                        </div>
+                         <div id="locations-content" class="content-view">
+                            <div class="locations-container">
+                                <h2>[LOCATIONS]</h2>
+                                <div class="location-tools">
+                                    <input id="location-search" class="settings-input" type="search" placeholder="Find a server..." aria-label="Find a server">
+                                    <button id="refresh-locations" type="button" aria-label="Refresh signal quality">↻</button>
+                                </div>
+                                <div id="locations-list" class="locations-list">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="custom-link-content" class="content-view">
+                            <div class="settings-container">
+                                <h2>[CUSTOM SERVER]</h2>
+                                <div class="setting-item">
+                                    <span>Use custom link</span>
+                                    <label class="toggle-switch small">
+                                        <input type="checkbox" id="custom-link-toggle" aria-label="Use custom link">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group" id="custom-link-input-wrapper">
+                                    <input type="text" id="custom-link-input" placeholder="vless://..." class="settings-input full-width">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="split-tunnel-content" class="content-view">
+                            <div class="settings-container">
+                                <h2>[SPLIT TUNNEL]</h2>
+                                <div class="setting-item">
+                                    <span>Enable Split Tunneling</span>
+                                    <label class="toggle-switch small">
+                                        <input type="checkbox" id="split-tunnel-toggle" aria-label="Enable Split Tunneling">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item st-mode-select-item">
+                                    <label for="st-mode-select">Mode</label>
+                                    <div class="custom-select-wrapper">
+                                        <select id="st-mode-select" class="settings-select">
+                                            <option value="exclude">Exclude domains</option>
+                                            <option value="tunnel">Tunnel domains</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="st-presets">
+                                    <span>Presets:</span>
+                                    <div class="st-preset-tags">
+                                        <label class="st-preset-tag">
+                                            <input type="checkbox" id="split-tunnel-discord">
+                                            <span>Discord</span>
+                                        </label>
+                                        <label class="st-preset-tag">
+                                            <input type="checkbox" id="split-tunnel-steam">
+                                            <span>Steam</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group st-custom-group">
+                                    <label for="split-tunnel-custom" style="margin-bottom: 1rem;">Custom Domains (comma-separated)</label>
+                                    <textarea id="split-tunnel-custom" class="settings-input full-width"></textarea>
+                                    <span id="domain-validation-error" class="error-message"></span>
+                                </div>
+
+                                <div class="account-actions">
+                                    <button id="split-tunnel-load-file" class="form-button">Load from file</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="map-panel">
+                <div id="map-svg-container"></div>
+                <div class="ip-info-box">
+                    <div>Current IP: <span id="ip-info-address">...</span></div>
+                    <div>Location: <span id="ip-info-location">...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2 id="confirm-title">Confirmation</h2>
+            <p id="confirm-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="confirm-no-btn" class="modal-button secondary">Cancel</button>
+                <button id="confirm-yes-btn" class="modal-button danger">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

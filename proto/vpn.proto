@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package vpn;
+
+option go_package = "aes128/proto/vpnpb";
+
+service VPNControl {
+  rpc Start(StartRequest) returns (StatusResponse);
+  rpc Stop(StopRequest) returns (StatusResponse);
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+}
+
+message StartRequest {}
+message StopRequest {}
+message StatusRequest {}
+
+message StatusResponse {
+  bool is_running = 1;
+  string message = 2;
+}

@@ -1,0 +1,60 @@
+#!/bin/sh
+set -eu
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
+app='/Applications/AES128 VPN.app'
+parent='/Library/PrivilegedHelperTools'
+service="$parent/com.aes128.vpn"
+plist='/Library/LaunchDaemons/com.aes128.vpn.helper.plist'
+scripts=$(cd "$(dirname "$0")" && pwd)
+fail() { echo "AES128 VPN: $*" >&2; exit 1; }
+[ "$(id -u)" = 0 ] || fail 'The macOS Installer must authorize this installation.'
+safe_directory() {
+    [ ! -L "$1" ] && [ -d "$1" ] || fail "Unsafe service directory: $1"
+    [ "$(stat -f %u "$1")" = 0 ] || fail "Service directory must belong to root: $1"
+    mode=$(stat -f %Lp "$1")
+    [ "$((0$mode & 022))" -eq 0 ] || fail "Service directory is writable by other users: $1"
+}
+codesign --verify --deep --strict "$app"
+if [ ! -e "$parent" ]; then install -d -o root -g wheel -m 755 "$parent"; fi
+safe_directory "$parent"
+if [ -e "$service" ] || [ -L "$service" ]; then safe_directory "$service"; fi
+[ ! -L "$plist" ] && [ -f "$plist" ] || fail 'Invalid VPN service configuration.'
+[ "$(stat -f %u "$plist")" = 0 ] || fail 'VPN service configuration must belong to root.'
+chmod 644 "$plist"
+stage=$(mktemp -d "$parent/.aes128-install.XXXXXX")
+completed=no
+cleanup() {
+    if [ "$completed" != yes ] && [ -d "$stage/previous" ]; then
+        echo "AES128 VPN: previous service files retained for repair at $stage/previous" >&2
+    else
+        rm -rf "$stage"
+    fi
+}
+trap cleanup EXIT
+install -d -o root -g wheel -m 700 "$stage/new"
+for binary in aes128-helper xray sing-box; do
+    install -o root -g wheel -m 700 "$app/Contents/MacOS/$binary" "$stage/new/$binary"
+done
+(cd "$stage/new" && shasum -a 256 -c "$scripts/helper.sha256") || fail 'VPN service integrity verification failed.'
+for binary in aes128-helper xray sing-box; do codesign --verify --strict "$stage/new/$binary"; done
+if [ -d "$service" ]; then mv "$service" "$stage/previous"; fi
+mv "$stage/new" "$service"
+if ! launchctl bootstrap system "$plist"; then
+    fail 'macOS could not start the VPN service. If you previously disabled it, allow AES128 VPN in Login Items & Extensions and reinstall.'
+fi
+count=0
+while [ ! -S /var/run/com.aes128.vpn/control.sock ]; do
+    [ "$count" -lt 20 ] || fail 'VPN service did not become ready. Reinstall AES128 VPN to repair it.'
+    sleep 1
+    count=$((count + 1))
+done
+console_uid=$(stat -f %u /dev/console)
+if [ "$console_uid" -ge 501 ]; then
+    launchctl asuser "$console_uid" sudo -n -u "#$console_uid" "$app/Contents/MacOS/aes128" --register-helper || fail 'VPN service readiness check failed.'
+    if ! launchctl asuser "$console_uid" sudo -n -u "#$console_uid" open "$app"; then
+        echo 'AES128 VPN was installed. Open it from Applications.'
+    fi
+fi
+completed=yes
+exit 0
