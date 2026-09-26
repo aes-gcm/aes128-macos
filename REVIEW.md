@@ -7,8 +7,10 @@ Changes made before initial publication:
 - Fixed DNS recovery retries while the helper is idle. Added a regression test for recovery after a transient failure.
 - Recheck the active console user on every RPC, including existing connections. Added authorization tests for user switching, the login window, missing peer identity and failed console lookup.
 - Removed the hard-coded QA server and require explicit disposable test credentials and endpoints.
-- Updated Go to 1.26.8, gRPC to 1.83.2 and affected transitive dependencies, including go-git and go-billy.
+- Updated Go to 1.26.8, gRPC to 1.83.2 and affected transitive dependencies, including go-git, go-billy and golang.org/x/crypto.
 - Added macOS CI and exclusions for generated assets, downloaded cores, credentials and local state.
+
+Go vulnerability checks found no affected application/helper symbols, and no affected GUI imports after the updates. A module-level advisory remains for the unused, deprecated `golang.org/x/crypto/openpgp` package (GO-2026-5932); the client does not import that package.
 
 ## Scope
 
