@@ -8,6 +8,6 @@
     <volume-check><allowed-os-versions><os-version min="13.0"/></allowed-os-versions></volume-check>
     <choices-outline><line choice="default"/></choices-outline>
     <choice id="default" visible="false" title="AES128 VPN"><pkg-ref id="com.aes128.vpn.pkg"/></choice>
-    <pkg-ref id="com.aes128.vpn.pkg" version="1.0.3" onConclusion="none">AES128-component.pkg</pkg-ref>
+    <pkg-ref id="com.aes128.vpn.pkg" version="1.0.4" onConclusion="none">AES128-component.pkg</pkg-ref>
     <pkg-ref id="com.aes128.vpn.pkg"><must-close><app id="com.aes128.vpn"/></must-close></pkg-ref>
 </installer-gui-script>

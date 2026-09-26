@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     retryLoginBtn.addEventListener('click', () => { if (!retryLoginBtn.disabled) { loginForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true })); } });
     goToRegisterLink.addEventListener('click', (event) => { event.preventDefault(); VPNService.BrowserOpenURL('https://aes.cx/en/account/register/'); });
-    downloadUpdateLink.addEventListener('click', (event) => { event.preventDefault(); VPNService.BrowserOpenURL('https://github.com/aes-gcm/aes128-macos/releases'); });
+    downloadUpdateLink.addEventListener('click', (event) => { event.preventDefault(); VPNService.BrowserOpenURL('https://aes.cx/en/app/download/macos/'); });
     settingsBtn.addEventListener('click', () => showContent('settings'));
     backToAppBtn.addEventListener('click', () => showContent('main'));
     serverSelectRow.addEventListener('click', () => { if (appData.useCustomLink) { return; } fetchAndDisplayLocations(); showContent('locations'); });

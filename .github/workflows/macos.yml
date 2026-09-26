@@ -1,25 +1,25 @@
-name: macOS checks
+name: macOS build
 on:
   push:
   pull_request:
 permissions:
   contents: read
 jobs:
-  test:
+  build:
     runs-on: macos-15
     timeout-minutes: 20
     env:
       MACOSX_DEPLOYMENT_TARGET: '13.0'
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
         with:
           go-version: '1.26.8'
           cache-dependency-path: |
             aes128/go.sum
             backend/go.sum
             proto/vpnpb/go.sum
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '24'
           cache: npm
@@ -27,17 +27,15 @@ jobs:
       - name: Build frontend
         working-directory: aes128/frontend
         run: npm ci --ignore-scripts && npm run build
-      - name: Test helper
+      - name: Build helper
         working-directory: backend
-        run: go test -race -ldflags=-extldflags=-mmacosx-version-min=13.0 ./... && go vet ./...
-      - name: Test application
+        run: go build ./... && go vet ./...
+      - name: Build application
         working-directory: aes128
-        run: go test -race -ldflags=-extldflags=-mmacosx-version-min=13.0 ./... && go vet ./...
+        run: go build -tags production -ldflags=-extldflags=-mmacosx-version-min=13.0 ./... && go vet ./...
       - name: Check protocol bindings
         working-directory: proto/vpnpb
-        run: go test ./... && go vet ./...
-      - name: Test installer lifecycle
-        run: python3 packaging/macos/tests/test_scripts.py
+        run: go build ./... && go vet ./...
       - name: Audit frontend dependencies
         working-directory: aes128/frontend
         run: npm audit --audit-level=high

@@ -5,7 +5,7 @@ src="$(cd "$(dirname "$0")/.." && pwd)"
 : "${AES128_OUTPUT:?Set AES128_OUTPUT to the installer output directory}"
 identity="${AES128_INSTALLER_IDENTITY:-}"
 app="$(cd "$(dirname "$AES128_APP")" && pwd)/$(basename "$AES128_APP")"
-out="$AES128_OUTPUT/AES128-VPN-macOS-Apple-Silicon-1.0.3.pkg"
+out="$AES128_OUTPUT/AES128-VPN-macOS-Apple-Silicon-1.0.4.pkg"
 stage=$(mktemp -d "${TMPDIR:-/tmp}/aes128-pkg.XXXXXX")
 trap 'rm -rf "$stage"' EXIT
 mkdir -p "$stage/root/Applications" "$stage/root/Library/LaunchDaemons" "$stage/scripts" "$AES128_OUTPUT"
@@ -19,7 +19,7 @@ pkgbuild --analyze --root "$stage/root" "$stage/components.plist"
 /usr/libexec/PlistBuddy -c 'Set :0:BundleHasStrictIdentifier true' "$stage/components.plist"
 /usr/libexec/PlistBuddy -c 'Set :0:BundleOverwriteAction upgrade' "$stage/components.plist"
 pkgbuild --root "$stage/root" --component-plist "$stage/components.plist" \
-  --identifier com.aes128.vpn.pkg --version 1.0.3 --install-location / \
+  --identifier com.aes128.vpn.pkg --version 1.0.4 --install-location / \
   --ownership recommended --scripts "$stage/scripts" "$stage/AES128-component.pkg"
 build_args=(--distribution "$src/packaging/macos/Distribution.xml" --resources "$src/packaging/macos/resources" --package-path "$stage")
 if [[ -n "$identity" ]]; then build_args+=(--sign "$identity" --timestamp); fi

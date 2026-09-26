@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	currentVersion  = "1.0.3"
+	currentVersion  = "1.0.4"
 	apiBaseURL      = "https://client.aes.cx/api"
 	appDataFileName = "app_data.bin"
 	tokenFileName   = "token.bin"
